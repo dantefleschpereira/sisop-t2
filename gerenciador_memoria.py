@@ -27,7 +27,7 @@ class ParticaoMemoria:
         return None
 
     # Implementar...
-    def circular_fit(self, process_id, size):
+    def circular_fit(self, processo_id, tamanho):
         ...
 
     def desalocar(self, processo_id):
