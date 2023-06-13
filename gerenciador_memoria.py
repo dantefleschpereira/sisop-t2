@@ -28,7 +28,33 @@ class ParticaoMemoria:
 
     # Implementar...
     def circular_fit(self, processo_id, tamanho):
-        ...
+        # Encontra o próximo bloco livre disponível
+        posicao_atual = 0
+        num_blocos = len(self.blocos_livres)
+
+        while num_blocos > 0:
+            comeco, tamanho_bloco = self.blocos_livres[posicao_atual]
+
+            if tamanho_bloco >= tamanho:
+                # Aloca o bloco livre para o processo
+                bloco_alocado = (comeco, tamanho)
+                self.blocos_alocados[processo_id] = bloco_alocado
+
+                # Divide o bloco livre em dois: um alocado e outro livre
+                if tamanho_bloco > tamanho:
+                    self.blocos_livres[posicao_atual] = (
+                        comeco + tamanho, tamanho_bloco - tamanho
+                    )
+                else:
+                    del self.blocos_livres[posicao_atual]
+
+                return bloco_alocado
+
+            # Atualiza a posição para o próximo bloco livre
+            posicao_atual = (posicao_atual + 1) % num_blocos
+            num_blocos -= 1
+
+        return None
 
     def desalocar(self, processo_id):
         if processo_id in self.blocos_alocados:
