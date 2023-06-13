@@ -56,9 +56,36 @@ class ParticaoMemoria:
         return None
     
     def particao_definida(self, processo_id, tamanho):
-        #implementar
-        return None
+        node = 0
+        while node < self.tamanho - 1:
+            if self.tree[node] >= tamanho:
+                node = 2*node + 1
+            else:
+                node = 2*node + 2
 
+        if self.tree[node] == 0:
+            return None
+
+        self.tree[node] = 0
+        self.split(node)
+        bloco_alocado = self.calculate_block(node)
+        self.blocos_alocados[processo_id] = bloco_alocado
+
+        return bloco_alocado
+
+    def split(self, node):
+        while node > 0:
+            node = (node - 1) // 2
+            self.tree[node] //= 2
+
+    def calculate_block(self, node):
+        start = 0
+        while node > 0:
+            if node % 2 == 0:
+                start += self.tree[node - 1]
+            node = (node - 1) // 2
+        return start, self.tree[node]
+    
     def desalocar(self, processo_id):
         if processo_id in self.blocos_alocados:
             start, tamanho = self.blocos_alocados[processo_id]
@@ -101,13 +128,13 @@ class ParticaoMemoria:
 def main():
     tamanho_memoria = 16
     memoria = ParticaoMemoria(tamanho_memoria)
-    estrategia_alocacao = input(
-        "Digite a política de alocação (Worst-Fit ou Circular-Fit): ").lower()
-    nome_arquivo = input(
-        "Digite o nome completo do arquivo com as requisições: ")
     com_buddy = input(
         "Partições variáveis (1) ou partições definidas com o sistema buddy (2): ")
-    
+    if com_buddy == '1':
+        estrategia_alocacao = input(
+            "Digite a política de alocação (Worst-Fit ou Circular-Fit): ").lower()
+        nome_arquivo = input(
+            "Digite o nome completo do arquivo com as requisições: ")
     print(f'\nTamanho da memória |{tamanho_memoria}| posições\n')
     with open(nome_arquivo, "r") as file:
         linhas = file.readlines()
@@ -124,13 +151,11 @@ def main():
                 bloco_alocado = memoria.worst_fit(processo_id, tamanho)
             elif estrategia_alocacao == "circular-fit" and com_buddy == '1':
                 bloco_alocado = memoria.circular_fit(processo_id, tamanho)
-            else:
-                print("Estratégia de alocação inválida.")
+            elif com_buddy == '2':
+				bloco_alocado = memoria.particao_definida(processo_id, tamanho)
+			else:
+				print("Estratégia de alocação inválida.")
                 return
-            if com_buddy == '2':
-                bloco_alocado = memoria.particao_definida(processo_id, tamanho)
-            else:
-                print("Problema com o buddy")
             if bloco_alocado is None:
                 print("ESPAÇO INSUFICIENTE DE MEMÓRIA")
             else:
