@@ -57,6 +57,7 @@ class ParticaoMemoria:
     
     def particao_definida(self, processo_id, tamanho):
         #implementar
+        return None
 
     def desalocar(self, processo_id):
         if processo_id in self.blocos_alocados:
