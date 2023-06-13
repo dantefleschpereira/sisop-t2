@@ -26,7 +26,6 @@ class ParticaoMemoria:
 
         return None
 
-    # Implementar...
     def circular_fit(self, processo_id, tamanho):
         # Encontra o próximo bloco livre disponível
         posicao_atual = 0
@@ -100,8 +99,11 @@ def main():
     memoria = ParticaoMemoria(tamanho_memoria)
     estrategia_alocacao = input(
         "Digite a política de alocação (Worst-Fit ou Circular-Fit): ").lower()
-
-    nome_arquivo = input("Digite o nome completo do arquivo com as requisições: ")
+    nome_arquivo = input(
+        "Digite o nome completo do arquivo com as requisições: ")
+    com_buddy = input(
+        "Partições variáveis (1) ou partições definidas com o sistema buddy (2): ")
+    
     print(f'\nTamanho da memória |{tamanho_memoria}| posições\n')
     with open(nome_arquivo, "r") as file:
         linhas = file.readlines()
