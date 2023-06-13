@@ -150,16 +150,16 @@ def main():
             if estrategia_alocacao == "worst-fit" and com_buddy == '1':
                 bloco_alocado = memoria.worst_fit(processo_id, tamanho)
             elif estrategia_alocacao == "circular-fit" and com_buddy == '1':
-                bloco_alocado = memoria.circular_fit(processo_id, tamanho)
+				bloco_alocado = memoria.circular_fit(processo_id, tamanho)
             elif com_buddy == '2':
 				bloco_alocado = memoria.particao_definida(processo_id, tamanho)
 			else:
 				print("Estratégia de alocação inválida.")
                 return
             if bloco_alocado is None:
-                print("ESPAÇO INSUFICIENTE DE MEMÓRIA")
+				print("ESPAÇO INSUFICIENTE DE MEMÓRIA")
             else:
-                print(f"Alocado {processo_id} ({parametros}")
+				print(f"Alocado {processo_id} ({parametros}")
                 # print(f"Alocado {processo_id}: {bloco_alocado[0]} - {bloco_alocado[0] + bloco_alocado[1] - 1}")
         elif linha.startswith("OUT"):
             # Comando de liberação de espaço: OUT(process_id)
