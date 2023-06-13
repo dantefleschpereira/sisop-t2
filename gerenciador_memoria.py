@@ -54,6 +54,9 @@ class ParticaoMemoria:
             num_blocos -= 1
 
         return None
+    
+    def particao_definida(self, processo_id, tamanho):
+        #implementar
 
     def desalocar(self, processo_id):
         if processo_id in self.blocos_alocados:
@@ -116,14 +119,17 @@ def main():
             processo_id, tamanho = parametros[:-1].split(",")
             tamanho = int(tamanho)
 
-            if estrategia_alocacao == "worst-fit":
+            if estrategia_alocacao == "worst-fit" and com_buddy == '1':
                 bloco_alocado = memoria.worst_fit(processo_id, tamanho)
-            elif estrategia_alocacao == "circular-fit":
+            elif estrategia_alocacao == "circular-fit" and com_buddy == '1':
                 bloco_alocado = memoria.circular_fit(processo_id, tamanho)
             else:
                 print("Estratégia de alocação inválida.")
                 return
-
+            if com_buddy == '2':
+                bloco_alocado = memoria.particao_definida(processo_id, tamanho)
+            else:
+                print("Problema com o buddy")
             if bloco_alocado is None:
                 print("ESPAÇO INSUFICIENTE DE MEMÓRIA")
             else:
