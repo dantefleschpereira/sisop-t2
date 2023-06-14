@@ -26,33 +26,44 @@ class ParticaoMemoria:
 
         return None
 
-    # Implementar...
     def circular_fit(self, processo_id, tamanho):
-        # Encontra o próximo bloco livre disponível
-        posicao_atual = 0
-        num_blocos = len(self.blocos_livres)
+        # Encontra o próximo bloco livre a partir da última alocação
+        ultimo_indice = -1
+        for i, (comeco, tamanho_bloco) in enumerate(self.blocos_livres):
+            if comeco >= ultimo_indice:
+                break
 
-        while num_blocos > 0:
-            comeco, tamanho_bloco = self.blocos_livres[posicao_atual]
-
+        # Faz um loop circular para encontrar um bloco livre suficientemente grande
+        for i in range(i, len(self.blocos_livres)):
+            comeco, tamanho_bloco = self.blocos_livres[i]
             if tamanho_bloco >= tamanho:
-                # Aloca o bloco livre para o processo
                 bloco_alocado = (comeco, tamanho)
                 self.blocos_alocados[processo_id] = bloco_alocado
 
                 # Divide o bloco livre em dois: um alocado e outro livre
                 if tamanho_bloco > tamanho:
-                    self.blocos_livres[posicao_atual] = (
-                        comeco + tamanho, tamanho_bloco - tamanho
-                    )
+                    self.blocos_livres[i] = (
+                        comeco + tamanho, tamanho_bloco - tamanho)
                 else:
-                    del self.blocos_livres[posicao_atual]
+                    del self.blocos_livres[i]
 
                 return bloco_alocado
 
-            # Atualiza a posição para o próximo bloco livre
-            posicao_atual = (posicao_atual + 1) % num_blocos
-            num_blocos -= 1
+        # Se não houver espaço suficiente, faz uma segunda iteração a partir do início
+        for i in range(len(self.blocos_livres)):
+            comeco, tamanho_bloco = self.blocos_livres[i]
+            if tamanho_bloco >= tamanho:
+                bloco_alocado = (comeco, tamanho)
+                self.blocos_alocados[processo_id] = bloco_alocado
+
+                # Divide o bloco livre em dois: um alocado e outro livre
+                if tamanho_bloco > tamanho:
+                    self.blocos_livres[i] = (
+                        comeco + tamanho, tamanho_bloco - tamanho)
+                else:
+                    del self.blocos_livres[i]
+
+                return bloco_alocado
 
         return None
 
@@ -89,9 +100,9 @@ class ParticaoMemoria:
         print("Blocos Livres:")
         for comeco, tamanho in self.blocos_livres:
             print(f"({comeco} até {comeco + tamanho - 1}) | {tamanho} |")
-        # print("Blocos alocados:")
-        # for process_id, (comeco, tamanho) in self.blocos_alocados.items():
-        #     print(f"({comeco} - {comeco + tamanho - 1}) | {tamanho} |")
+        print("Blocos alocados:")
+        for process_id, (comeco, tamanho) in self.blocos_alocados.items():
+            print(f"({comeco} - {comeco + tamanho - 1}) | {tamanho} |")
         print("")
 
 
@@ -125,8 +136,7 @@ def main():
             if bloco_alocado is None:
                 print("ESPAÇO INSUFICIENTE DE MEMÓRIA")
             else:
-                print(f"Alocado {processo_id} ({parametros}")
-                # print(f"Alocado {processo_id}: {bloco_alocado[0]} - {bloco_alocado[0] + bloco_alocado[1] - 1}")
+                print(f"Alocado {processo_id} ({parametros})")
         elif linha.startswith("OUT"):
             # Comando de liberação de espaço: OUT(process_id)
             comando, processo_id = linha.split("(")
