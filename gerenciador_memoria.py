@@ -1,3 +1,8 @@
+# MEMORY ALLOCATION VIDEO:
+# https://www.youtube.com/watch?v=WBmgZOjEJ6E&t=5s
+# Trabalho Prático 2 de Sistemas Operacionais, Prof. Fabiano Passuelo Hessel
+# GRUPO X: Guilherme Specht, Dante Flesch, Gabriel Decian e Gabriel Isdra
+
 class ParticaoMemoria:
     def __init__(self, size):
         self.tamanho = size
@@ -27,13 +32,11 @@ class ParticaoMemoria:
         return None
 
     def circular_fit(self, processo_id, tamanho):
-        # Encontra o próximo bloco livre a partir da última alocação
         ultimo_indice = -1
         for i, (comeco, tamanho_bloco) in enumerate(self.blocos_livres):
             if comeco >= ultimo_indice:
                 break
 
-        # Faz um loop circular para encontrar um bloco livre suficientemente grande
         for i in range(i, len(self.blocos_livres)):
             comeco, tamanho_bloco = self.blocos_livres[i]
             if tamanho_bloco >= tamanho:
@@ -49,7 +52,6 @@ class ParticaoMemoria:
 
                 return bloco_alocado
 
-        # Se não houver espaço suficiente, faz uma segunda iteração a partir do início
         for i in range(len(self.blocos_livres)):
             comeco, tamanho_bloco = self.blocos_livres[i]
             if tamanho_bloco >= tamanho:
@@ -69,31 +71,25 @@ class ParticaoMemoria:
 
     def desalocar(self, processo_id):
         if processo_id in self.blocos_alocados:
-            start, tamanho = self.blocos_alocados[processo_id]
+            bloco_liberado = self.blocos_alocados[processo_id]
             del self.blocos_alocados[processo_id]
+            self.blocos_livres.append(bloco_liberado)
+            self.blocos_livres.sort(key=lambda bloco: bloco[0])
+            self.juntar_blocos_livres()
 
-            # Verifica se o bloco liberado pode ser fundido com blocos livres adjacentes
-            unir_comeco = None
-            unir_tamanho = tamanho
-
-            for i, (comeco_bloco, tamanho_bloco) in enumerate(self.blocos_livres):
-                if comeco_bloco + tamanho_bloco == start:  # Bloco livre anterior ao bloco liberado
-                    unir_comeco = comeco_bloco
-                    unir_tamanho += tamanho_bloco
-                    del self.blocos_livres[i]
-                    break
-                elif start + tamanho == comeco_bloco:  # Bloco livre posterior ao bloco liberado
-                    unir_tamanho += tamanho_bloco
-                    del self.blocos_livres[i]
-                    break
-
-            if unir_comeco is not None:
-                self.blocos_livres.append((unir_comeco, unir_tamanho))
+    # Função feita apenas para melhorar a visualização dos blocos livres
+    def juntar_blocos_livres(self):
+        self.blocos_livres.sort(key=lambda bloco: bloco[0])
+        i = 0
+        while i < len(self.blocos_livres) - 1:
+            bloco_atual = self.blocos_livres[i]
+            proximo_bloco = self.blocos_livres[i + 1]
+            if bloco_atual[0] + bloco_atual[1] == proximo_bloco[0]:
+                tamanho_total = bloco_atual[1] + proximo_bloco[1]
+                self.blocos_livres[i] = (bloco_atual[0], tamanho_total)
+                del self.blocos_livres[i + 1]
             else:
-                self.blocos_livres.append((start, tamanho))
-
-            # Ordena os blocos livres por ordem crescente de início
-            self.blocos_livres.sort(key=lambda block: block[0])
+                i += 1
 
     def status_memoria(self):
         print("Ocupação da Memória")
@@ -150,3 +146,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
