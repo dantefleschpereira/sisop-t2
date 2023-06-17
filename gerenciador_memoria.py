@@ -2,6 +2,7 @@
 # https://www.youtube.com/watch?v=WBmgZOjEJ6E&t=5s
 # Trabalho Prático 2 de Sistemas Operacionais, Prof. Fabiano Passuelo Hessel
 # GRUPO X: Guilherme Specht, Dante Flesch, Gabriel Decian e Gabriel Isdra
+# Última atualização: 17/06/2023 // 13:49
 
 class ParticaoMemoria:
     def __init__(self, size):
@@ -32,42 +33,32 @@ class ParticaoMemoria:
         return None
 
     def circular_fit(self, processo_id, tamanho):
-        ultimo_indice = -1
-        for i, (comeco, tamanho_bloco) in enumerate(self.blocos_livres):
-            if comeco >= ultimo_indice:
-                break
+        # Procura espaço para alocar o processo a partir do último bloco alocado
+        ultimo_bloco_alocado = None
+        for processo, (comeco, tamanho_bloco) in self.blocos_alocados.items():
+            if processo == processo_id:
+                ultimo_bloco_alocado = (comeco, tamanho_bloco)
 
-        for i in range(i, len(self.blocos_livres)):
-            comeco, tamanho_bloco = self.blocos_livres[i]
-            if tamanho_bloco >= tamanho:
-                bloco_alocado = (comeco, tamanho)
-                self.blocos_alocados[processo_id] = bloco_alocado
+        if ultimo_bloco_alocado is not None:
+            comeco, tamanho_bloco = ultimo_bloco_alocado
+            bloco_seguinte = (comeco + tamanho_bloco) % self.tamanho
+            for i, (comeco_livre, tamanho_livre) in enumerate(self.blocos_livres):
+                if comeco_livre == bloco_seguinte and tamanho_livre >= tamanho:
+                    bloco_alocado = (comeco_livre, tamanho)
+                    self.blocos_alocados[processo_id] = bloco_alocado
 
-                # Divide o bloco livre em dois: um alocado e outro livre
-                if tamanho_bloco > tamanho:
-                    self.blocos_livres[i] = (
-                        comeco + tamanho, tamanho_bloco - tamanho)
-                else:
-                    del self.blocos_livres[i]
+                    # Divide o bloco livre em dois: um alocado e outro livre
+                    if tamanho_livre > tamanho:
+                        self.blocos_livres[i] = (
+                            comeco_livre + tamanho, tamanho_livre - tamanho)
+                    else:
+                        del self.blocos_livres[i]
 
-                return bloco_alocado
+                    return bloco_alocado
 
-        for i in range(len(self.blocos_livres)):
-            comeco, tamanho_bloco = self.blocos_livres[i]
-            if tamanho_bloco >= tamanho:
-                bloco_alocado = (comeco, tamanho)
-                self.blocos_alocados[processo_id] = bloco_alocado
+        # Caso não seja possível encontrar espaço a partir do último bloco alocado, utiliza o worst-fit
+        return self.worst_fit(processo_id, tamanho)
 
-                # Divide o bloco livre em dois: um alocado e outro livre
-                if tamanho_bloco > tamanho:
-                    self.blocos_livres[i] = (
-                        comeco + tamanho, tamanho_bloco - tamanho)
-                else:
-                    del self.blocos_livres[i]
-
-                return bloco_alocado
-
-        return None
 
     def desalocar(self, processo_id):
         if processo_id in self.blocos_alocados:
@@ -106,7 +97,7 @@ def main():
     tamanho_memoria = 16
     memoria = ParticaoMemoria(tamanho_memoria)
     estrategia_alocacao = input(
-        "Digite a política de alocação (Worst-Fit ou Circular-Fit): ").lower()
+        "Digite a política de alocação (1 - Worst-Fit ou 2 - Circular-Fit): ").lower()
 
     nome_arquivo = input("Digite o nome completo do arquivo com as requisições: ")
     print(f'\nTamanho da memória |{tamanho_memoria}| posições\n')
@@ -121,9 +112,9 @@ def main():
             processo_id, tamanho = parametros[:-1].split(",")
             tamanho = int(tamanho)
 
-            if estrategia_alocacao == "worst-fit":
+            if estrategia_alocacao == "1":
                 bloco_alocado = memoria.worst_fit(processo_id, tamanho)
-            elif estrategia_alocacao == "circular-fit":
+            elif estrategia_alocacao == "2":
                 bloco_alocado = memoria.circular_fit(processo_id, tamanho)
             else:
                 print("Estratégia de alocação inválida.")
