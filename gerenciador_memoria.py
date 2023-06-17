@@ -1,8 +1,8 @@
 # MEMORY ALLOCATION VIDEO:
 # https://www.youtube.com/watch?v=WBmgZOjEJ6E&t=5s
 # Trabalho Prático 2 de Sistemas Operacionais, Prof. Fabiano Passuelo Hessel
-# GRUPO X: Guilherme Specht, Dante Flesch, Gabriel Decian e Gabriel Isdra
-# Última atualização: 17/06/2023 // 13:49
+# GRUPO E: Guilherme Specht, Dante Flesch, Gabriel Decian e Gabriel Isdra
+# Última atualização: 17/06/2023 // 16:46
 
 class ParticaoMemoria:
     def __init__(self, size):
@@ -33,44 +33,53 @@ class ParticaoMemoria:
         return None
 
     def circular_fit(self, processo_id, tamanho):
-        # Procura espaço para alocar o processo a partir do último bloco alocado
-        ultimo_bloco_alocado = None
-        for processo, (comeco, tamanho_bloco) in self.blocos_alocados.items():
-            if processo == processo_id:
-                ultimo_bloco_alocado = (comeco, tamanho_bloco)
+        # Encontra o último bloco alocado
+        ultimo_bloco_alocado = max(self.blocos_alocados.values(), key=lambda bloco: bloco[0], default=(0, 0))
 
-        if ultimo_bloco_alocado is not None:
-            comeco, tamanho_bloco = ultimo_bloco_alocado
-            bloco_seguinte = (comeco + tamanho_bloco) % self.tamanho
-            for i, (comeco_livre, tamanho_livre) in enumerate(self.blocos_livres):
-                if comeco_livre == bloco_seguinte and tamanho_livre >= tamanho:
-                    bloco_alocado = (comeco_livre, tamanho)
-                    self.blocos_alocados[processo_id] = bloco_alocado
+        # Calcula o início para alocar o próximo processo
+        inicio = (ultimo_bloco_alocado[0] + ultimo_bloco_alocado[1]) % self.tamanho
 
-                    # Divide o bloco livre em dois: um alocado e outro livre
-                    if tamanho_livre > tamanho:
-                        self.blocos_livres[i] = (
-                            comeco_livre + tamanho, tamanho_livre - tamanho)
-                    else:
-                        del self.blocos_livres[i]
+        # Encontra o próximo bloco livre disponível
+        for i, (comeco, tamanho_bloco) in enumerate(self.blocos_livres):
+            if comeco >= inicio and tamanho_bloco >= tamanho:
+                bloco_alocado = (comeco, tamanho)
+                self.blocos_alocados[processo_id] = bloco_alocado
 
-                    return bloco_alocado
+                # Divide o bloco livre em dois: um alocado e outro livre
+                if tamanho_bloco > tamanho:
+                    self.blocos_livres[i] = (comeco + tamanho, tamanho_bloco - tamanho)
+                else:
+                    del self.blocos_livres[i]
 
-        # Caso não seja possível encontrar espaço a partir do último bloco alocado, utiliza o worst-fit
-        return self.worst_fit(processo_id, tamanho)
+                return bloco_alocado
+
+        # Caso não encontre espaço nos blocos posteriores, procura no início
+        for i, (comeco, tamanho_bloco) in enumerate(self.blocos_livres):
+            if comeco + tamanho_bloco >= tamanho:
+                bloco_alocado = (comeco, tamanho)
+                self.blocos_alocados[processo_id] = bloco_alocado
+
+                # Divide o bloco livre em dois: um alocado e outro livre
+                if tamanho_bloco > tamanho:
+                    self.blocos_livres[i] = (comeco + tamanho, tamanho_bloco - tamanho)
+                else:
+                    del self.blocos_livres[i]
+
+                return bloco_alocado
+
+        return None
+
 
 
     def desalocar(self, processo_id):
         if processo_id in self.blocos_alocados:
-            bloco_liberado = self.blocos_alocados[processo_id]
-            del self.blocos_alocados[processo_id]
-            self.blocos_livres.append(bloco_liberado)
+            comeco_liberado, tamanho_liberado = self.blocos_alocados.pop(
+                processo_id)
+            self.blocos_livres.append((comeco_liberado, tamanho_liberado))
             self.blocos_livres.sort(key=lambda bloco: bloco[0])
-            self.juntar_blocos_livres()
+            self.fundir_blocos_livres()
 
-    # Função feita apenas para melhorar a visualização dos blocos livres
-    def juntar_blocos_livres(self):
-        self.blocos_livres.sort(key=lambda bloco: bloco[0])
+    def fundir_blocos_livres(self):
         i = 0
         while i < len(self.blocos_livres) - 1:
             bloco_atual = self.blocos_livres[i]
@@ -85,13 +94,13 @@ class ParticaoMemoria:
     def status_memoria(self):
         print("Ocupação da Memória")
         print("Blocos Livres:")
+        self.blocos_livres.sort(key=lambda bloco: bloco[0])  # Correção: Ordenar pelo início em ordem crescente
         for comeco, tamanho in self.blocos_livres:
             print(f"({comeco} até {comeco + tamanho - 1}) | {tamanho} |")
         print("Blocos alocados:")
         for process_id, (comeco, tamanho) in self.blocos_alocados.items():
             print(f"({comeco} - {comeco + tamanho - 1}) | {tamanho} |")
         print("")
-
 
 def main():
     tamanho_memoria = 16
@@ -137,4 +146,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
