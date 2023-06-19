@@ -15,7 +15,6 @@ import java.util.regex.Pattern;
 public class gerenciador_memoria
 {
     private List<LinkedList<Integer>> blocos_livres = new ArrayList<>();
-    private List<LinkedList<Integer>> blocos_ocupados = new ArrayList<>();
     private int tamanho;
     private int lastBlock = 0;
     private HashMap<String, LinkedList<Integer>> processDict = new HashMap<>();
