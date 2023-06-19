@@ -12,6 +12,8 @@ class ParticaoMemoria:
         # Dicionário de blocos alocados (ID do processo: (início, tamanho))
         self.blocos_alocados = {}
 
+        self.ultimo_bloco = 0
+
     def worst_fit(self, processo_id, tamanho):
         # Ordena os blocos livres pelo tamanho em ordem decrescente
         self.blocos_livres.sort(key=lambda bloco: bloco[1], reverse=True)
@@ -37,13 +39,17 @@ class ParticaoMemoria:
         ultimo_bloco_alocado = max(self.blocos_alocados.values(), key=lambda bloco: bloco[0], default=(0, 0))
 
         # Calcula o início para alocar o próximo processo
-        inicio = (ultimo_bloco_alocado[0] + ultimo_bloco_alocado[1]) % self.tamanho
+        #inicio = (ultimo_bloco_alocado[0] + ultimo_bloco_alocado[1]) % self.tamanho
+        inicio = self.ultimo_bloco
 
         # Encontra o próximo bloco livre disponível
         for i, (comeco, tamanho_bloco) in enumerate(self.blocos_livres):
+            print(str(comeco) + " " + str(inicio))
             if comeco >= inicio and tamanho_bloco >= tamanho:
                 bloco_alocado = (comeco, tamanho)
                 self.blocos_alocados[processo_id] = bloco_alocado
+                self.ultimo_bloco = comeco + tamanho
+                print(str(inicio) + " inicio")
 
                 # Divide o bloco livre em dois: um alocado e outro livre
                 if tamanho_bloco > tamanho:
@@ -55,9 +61,12 @@ class ParticaoMemoria:
 
         # Caso não encontre espaço nos blocos posteriores, procura no início
         for i, (comeco, tamanho_bloco) in enumerate(self.blocos_livres):
+            print(str(comeco) + " " + str(inicio))
             if comeco + tamanho_bloco >= tamanho:
                 bloco_alocado = (comeco, tamanho)
                 self.blocos_alocados[processo_id] = bloco_alocado
+                self.ultimo_bloco = comeco + tamanho
+                print(str(inicio) + " inicio")
 
                 # Divide o bloco livre em dois: um alocado e outro livre
                 if tamanho_bloco > tamanho:
@@ -114,6 +123,7 @@ def main():
         linhas = file.readlines()
 
     for linha in linhas:
+        if linha.startswith("#"): continue
         linha = linha.strip()
         if linha.startswith("IN"):
             # Comando de alocação de espaço: IN(process_id, size)
