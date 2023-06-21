@@ -14,7 +14,7 @@ public class worstFit_gerenciador extends gerenciador_memoria{
             return false;
         }
         if(blocos_livres.isEmpty()) {
-            System.out.println("ESPAÇO INSUFICIENTE DE MEMÓRIA");
+            System.out.println("ESPACO INSUFICIENTE DE MEMORIA");
             return false;
         }
         blocos_livres.sort(new Comparator<LinkedList>() {
@@ -25,7 +25,7 @@ public class worstFit_gerenciador extends gerenciador_memoria{
         });
         LinkedList<Integer> l = blocos_livres.get(0);
         if(tamanho > l.size()) {
-            System.out.println("No space for process alocation");
+            System.out.println("ESPACO INSUFICIENTE DE MEMORIA");
             return false;
         }
         LinkedList<Integer> sub = (LinkedList<Integer>) l.clone();

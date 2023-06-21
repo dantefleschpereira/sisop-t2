@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
-public abstract class gerenciador_memoria
+public abstract class gerenciador_memoria implements IGerenciador
 {
     protected List<LinkedList<Integer>> blocos_livres = new ArrayList<>();
     protected int tamanho;
@@ -82,12 +82,19 @@ public abstract class gerenciador_memoria
             sb.append("(" + linkedList.get(0) + "-" + linkedList.getLast() + ") | " + linkedList.size() + " |\n");
         }
         sb.append("Blocos alocados:\n");
-        processDict.forEach((s, linkedList) -> sb.append(s + " -> (" + linkedList.get(0) + "-" + linkedList.getLast() + ") | " + linkedList.size() + " |\n"));
+        processDict.forEach((s, list) -> sb.append(s + " -> (" + list.get(0) + "-" + list.getLast() + ") | " + list.size() + " |\n"));
         return sb.toString();
     }    
 
-    public static gerenciador_memoria factory(String politica, int tamanho)
+    public static IGerenciador factory(int politica, int tamanho)
     {
-        return politica.equals("1")? new worstFit_gerenciador(tamanho) : new circularFit_gerenciador(tamanho);
+        switch(politica)
+        {
+            case 1: return new worstFit_gerenciador(tamanho);
+            case 2: return new circularFit_gerenciador(tamanho);
+            case 3: return new buddy_gerenciador(tamanho);
+            default: return null;
+        }
+
     }
 }

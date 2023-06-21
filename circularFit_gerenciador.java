@@ -16,7 +16,7 @@ public class circularFit_gerenciador extends gerenciador_memoria{
             return false;
         }
         if(blocos_livres.isEmpty()) {
-            System.out.println("ESPAÇO INSUFICIENTE DE MEMÓRIA");
+            System.out.println("ESPACO INSUFICIENTE DE MEMORIA");
             return false;
         }
         int[] lastBlockComp = {lastBlock};

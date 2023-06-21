@@ -1,0 +1,72 @@
+IN A 3
+PARENT(0-16)
+    PARENT(0-8)
+        CHILD (0-3) | 4 | BOUND TO (A 3) ->  | FRAGMENTACAO INTERNA = 1
+        CHILD (4-7) | 4 | LIVRE
+    CHILD (8-15) | 8 | LIVRE
+
+IN B 8
+PARENT(0-16)
+    PARENT(0-8)
+        CHILD (0-3) | 4 | BOUND TO (A 3) ->  | FRAGMENTACAO INTERNA = 1
+        CHILD (4-7) | 4 | LIVRE
+    CHILD (8-15) | 8 | BOUND TO (B 8) ->  | FRAGMENTACAO INTERNA = 0
+
+IN C 2
+PARENT(0-16)
+    PARENT(0-8)
+        CHILD (0-3) | 4 | BOUND TO (A 3) ->  | FRAGMENTACAO INTERNA = 1
+        PARENT(4-8)
+            CHILD (4-5) | 2 | BOUND TO (C 2) ->  | FRAGMENTACAO INTERNA = 0
+            CHILD (6-7) | 2 | LIVRE
+    CHILD (8-15) | 8 | BOUND TO (B 8) ->  | FRAGMENTACAO INTERNA = 0
+
+OUT A
+PARENT(0-16)
+    PARENT(0-8)
+        CHILD (0-3) | 4 | LIVRE
+        PARENT(4-8)
+            CHILD (4-5) | 2 | BOUND TO (C 2) ->  | FRAGMENTACAO INTERNA = 0
+            CHILD (6-7) | 2 | LIVRE
+    CHILD (8-15) | 8 | BOUND TO (B 8) ->  | FRAGMENTACAO INTERNA = 0
+
+IN D 1
+PARENT(0-16)
+    PARENT(0-8)
+        PARENT(0-4)
+            PARENT(0-2)
+                CHILD (0-0) | 1 | BOUND TO (D 1) ->  | FRAGMENTACAO INTERNA = 0
+                CHILD (1-1) | 1 | LIVRE
+            CHILD (2-3) | 2 | LIVRE
+        PARENT(4-8)
+            CHILD (4-5) | 2 | BOUND TO (C 2) ->  | FRAGMENTACAO INTERNA = 0
+            CHILD (6-7) | 2 | LIVRE
+    CHILD (8-15) | 8 | BOUND TO (B 8) ->  | FRAGMENTACAO INTERNA = 0
+
+OUT B
+PARENT(0-16)
+    PARENT(0-8)
+        PARENT(0-4)
+            PARENT(0-2)
+                CHILD (0-0) | 1 | BOUND TO (D 1) ->  | FRAGMENTACAO INTERNA = 0
+                CHILD (1-1) | 1 | LIVRE
+            CHILD (2-3) | 2 | LIVRE
+        PARENT(4-8)
+            CHILD (4-5) | 2 | BOUND TO (C 2) ->  | FRAGMENTACAO INTERNA = 0
+            CHILD (6-7) | 2 | LIVRE
+    CHILD (8-15) | 8 | LIVRE
+
+OUT C
+PARENT(0-16)
+    PARENT(0-8)
+        PARENT(0-4)
+            PARENT(0-2)
+                CHILD (0-0) | 1 | BOUND TO (D 1) ->  | FRAGMENTACAO INTERNA = 0
+                CHILD (1-1) | 1 | LIVRE
+            CHILD (2-3) | 2 | LIVRE
+        CHILD (4-7) | 4 | LIVRE
+    CHILD (8-15) | 8 | LIVRE
+
+OUT D
+CHILD (0-15) | 16 | LIVRE
+

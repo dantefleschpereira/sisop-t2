@@ -23,39 +23,45 @@ public class App {
             System.out.println("Valor invalido. DEVE SER UMA POTENCIA DE 2");
             memoriaTamanho = in.nextInt();
         }
-        System.out.println("Digite a política de alocação (1 - Worst-Fit ou 2 - Circular-Fit): ");
-        String politicaSelecionada = in.next();
+        System.out.println("Digite a politica de alocação (1 - Worst-Fit, 2 - Circular-Fit ou 3 - Buddy): ");
+        int politicaSelecionada = in.nextInt();
+        while (politicaSelecionada > 3 || politicaSelecionada < 1) {
+            System.out.println("Valor invalido. DEVE SER (1 - Worst-Fit, 2 - Circular-Fit ou 3 - Buddy)");
+            politicaSelecionada = in.nextInt();
+        }
+        System.out.println("Digite o nome completo do arquivo com as requisições: ");
+        String arquivo = in.next();
         in.close();
-        gerenciador_memoria gerenciador = gerenciador_memoria.factory(politicaSelecionada, memoriaTamanho);
-        try (Stream<String> stream = Files.lines(Paths.get("requisicoes2.txt"))) {
-            write = new PrintWriter(new File("out.txt"));
+        IGerenciador gerenciador = gerenciador_memoria.factory(politicaSelecionada, memoriaTamanho);
+        try (Stream<String> stream = Files.lines(Paths.get(arquivo))) {
+            write = new PrintWriter(new File("resposta.txt"));
             stream.
             forEach(linha -> {
                 Matcher match = pattIn.matcher(linha);
                 if(match.matches())
                 { 
-
                     String id = match.group(1);
                     int tamanho = Integer.valueOf(match.group(2));
-                    System.out.println("IN " + id + " " + tamanho);
+                    write.println("IN " + id + " " + tamanho);
                     gerenciador.alocar(id, tamanho);
-                    System.out.println(gerenciador);
+                    write.println(gerenciador);
                     return;
                 }
                 match = pattOut.matcher(linha);
                 if(match.matches())
                 {
                     String id = match.group(1);
-                    System.out.println("OUT " + id);
+                    write.println("OUT " + id);
                     gerenciador.desalocar(id);
-                    System.out.println(gerenciador);
+                    write.println(gerenciador);
                     return;
                 }
-                System.out.println(linha + " does not have matching structure - SKIPPING");
+                write.println(linha + " does not have matching structure - SKIPPING");
             });
         } catch (Exception e) {
             System.out.println("Problemas no processamento do arquivo de entrada");
             e.printStackTrace();
         }
+        write.close();
     }
 }
